@@ -3,27 +3,250 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thyro external</title>
+    <title>Thyro External - Login</title>
     <style>
-        body {
+        * {
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            max-width: 400px;
+            width: 100%;
+        }
+        .form-container {
+            padding: 40px;
         }
         h1 {
-            color: white;
-            font-size: 3em;
             text-align: center;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
         }
+        .subtitle {
+            text-align: center;
+            color: #999;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+        }
+        .toggle-text {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+            font-size: 14px;
+        }
+        .toggle-text a {
+            color: #667eea;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .error {
+            color: #e74c3c;
+            font-size: 13px;
+            margin-top: 5px;
+        }
+        .success {
+            color: #27ae60;
+            font-size: 13px;
+            margin-top: 5px;
+        }
+        #loginForm { display: block; }
+        #signupForm { display: none; }
+        .hidden { display: none; }
     </style>
 </head>
 <body>
-    <h1>Thyro external</h1>
+    <div class="container">
+        <div class="form-container">
+            <!-- LOGIN FORM -->
+            <form id="loginForm">
+                <h1>Thyro External</h1>
+                <p class="subtitle">Login to your account</p>
+                
+                <div class="form-group">
+                    <label for="loginEmail">Email</label>
+                    <input type="email" id="loginEmail" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" required>
+                </div>
+                
+                <div id="loginError" class="error"></div>
+                
+                <button type="submit">Login</button>
+                
+                <div class="toggle-text">
+                    Don't have an account? <a onclick="toggleForms()">Sign up</a>
+                </div>
+            </form>
+
+            <!-- SIGNUP FORM -->
+            <form id="signupForm">
+                <h1>Thyro External</h1>
+                <p class="subtitle">Create a new account</p>
+                
+                <div class="form-group">
+                    <label for="signupEmail">Email</label>
+                    <input type="email" id="signupEmail" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="signupPassword">Password</label>
+                    <input type="password" id="signupPassword" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="signupConfirm">Confirm Password</label>
+                    <input type="password" id="signupConfirm" required>
+                </div>
+                
+                <div id="signupError" class="error"></div>
+                <div id="signupSuccess" class="success"></div>
+                
+                <button type="submit">Create Account</button>
+                
+                <div class="toggle-text">
+                    Already have an account? <a onclick="toggleForms()">Login</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Simple localStorage-based auth (for demo - use Firebase for production)
+        
+        function toggleForms() {
+            document.getElementById('loginForm').classList.toggle('hidden');
+            document.getElementById('signupForm').classList.toggle('hidden');
+        }
+
+        // Login
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const errorDiv = document.getElementById('loginError');
+            
+            // Check for admin login
+            if (email === 'admin' && password === 'admin') {
+                // Create admin user if doesn't exist
+                const users = JSON.parse(localStorage.getItem('thyro_users') || '{}');
+                if (!users['admin']) {
+                    users['admin'] = { password: 'admin', isAdmin: true, license: null };
+                    localStorage.setItem('thyro_users', JSON.stringify(users));
+                }
+                localStorage.setItem('thyro_currentUser', 'admin');
+                window.location.href = 'admin.html';
+                return;
+            }
+            
+            const users = JSON.parse(localStorage.getItem('thyro_users') || '{}');
+            
+            if (users[email] && users[email].password === password) {
+                localStorage.setItem('thyro_currentUser', email);
+                if (users[email].isAdmin) {
+                    window.location.href = 'admin.html';
+                } else {
+                    window.location.href = 'dashboard.html';
+                }
+            } else {
+                errorDiv.textContent = 'Invalid email or password';
+            }
+        });
+
+        // Signup
+        document.getElementById('signupForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+            const confirm = document.getElementById('signupConfirm').value;
+            const errorDiv = document.getElementById('signupError');
+            const successDiv = document.getElementById('signupSuccess');
+            
+            errorDiv.textContent = '';
+            successDiv.textContent = '';
+            
+            if (password !== confirm) {
+                errorDiv.textContent = 'Passwords do not match';
+                return;
+            }
+            
+            if (password.length < 6) {
+                errorDiv.textContent = 'Password must be at least 6 characters';
+                return;
+            }
+            
+            const users = JSON.parse(localStorage.getItem('thyro_users') || '{}');
+            
+            if (users[email]) {
+                errorDiv.textContent = 'Email already registered';
+                return;
+            }
+            
+            users[email] = { password, isAdmin: false, license: null };
+            localStorage.setItem('thyro_users', JSON.stringify(users));
+            
+            successDiv.textContent = 'Account created! Please login.';
+            document.getElementById('signupForm').reset();
+            
+            setTimeout(() => toggleForms(), 1500);
+        });
+
+        // Check if already logged in
+        if (localStorage.getItem('thyro_currentUser')) {
+            window.location.href = 'dashboard.html';
+        }
+    </script>
 </body>
 </html>

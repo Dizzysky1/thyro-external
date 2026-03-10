@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Thyro External</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 {
+            font-size: 24px;
+        }
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        .content {
+            padding: 40px;
+        }
+        .section {
+            margin-bottom: 40px;
+        }
+        h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 20px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+        }
+        .users-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .users-table th {
+            background: #f8f9fa;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid #ddd;
+        }
+        .users-table td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+        .users-table tr:hover {
+            background: #f8f9fa;
+        }
+        .action-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            margin-right: 5px;
+        }
+        .action-btn.remove {
+            background: #e74c3c;
+        }
+        .message {
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status-no-license {
+            background: #fff3cd;
+            color: #856404;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Admin Panel - Thyro External</h1>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+        
+        <div class="content">
+            <!-- Admin Setup -->
+            <div class="section" id="adminSetup" style="display: none;">
+                <h2>First Time Setup</h2>
+                <p style="margin-bottom: 20px; color: #666;">Set your admin password to secure the admin panel.</p>
+                
+                <div class="form-group">
+                    <label for="adminPassword">Admin Password</label>
+                    <input type="password" id="adminPassword" placeholder="Enter admin password" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="adminPasswordConfirm">Confirm Password</label>
+                    <input type="password" id="adminPasswordConfirm" placeholder="Confirm admin password" required>
+                </div>
+                
+                <button onclick="setupAdmin()">Setup Admin Panel</button>
+            </div>
+
+            <!-- License Management -->
+            <div class="section">
+                <h2>Manage User Licenses</h2>
+                
+                <div id="message"></div>
+                
+                <div class="form-group">
+                    <label for="userSelect">Select User</label>
+                    <select id="userSelect">
+                        <option value="">Choose a user...</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="licenseKey">License Key</label>
+                    <input type="text" id="licenseKey" placeholder="e.g., THYRO-2024-ABC123">
+                </div>
+                
+                <button onclick="assignLicense()">Assign License</button>
+            </div>
+
+            <!-- Users List -->
+            <div class="section">
+                <h2>All Users</h2>
+                
+                <table class="users-table">
+                    <thead>
+                        <tr>
+                            <th>Email</th>
+                            <th>Status</th>
+                            <th>License</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersList">
+                        <tr>
+                            <td colspan="4" style="text-align: center; color: #999;">No users yet</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function checkAdminAuth() {
+            const currentUser = localStorage.getItem('thyro_currentUser');
+            const users = JSON.parse(localStorage.getItem('thyro_users') || '{}');
+            
+            if (!currentUser || !users[currentUser] || !users[currentUser].isAdmin) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // Check if admin password is set
+            if (!localStorage.getItem('thyro_adminPassword')) {
+                document.getElementById('adminSetup').style.display = 'block';
+            }
+
+            loadUsers();
+        }
+
+        function setupAdmin() {
+            const password = document.getElementById('adminPassword').value;
+            const confirm = document.getElementById('adminPasswordConfirm').value;
+            const messageDiv = document.getElementById('message');
+
+            if (password !== confirm) {
+                showMessage('Passwords do not match', 'error');
+                return;
+            }
+
+            if (password.length < 6) {
+                showMessage('Password must be at least 6 characters', 'error');
+                return;
+            }
+
+            localStorage.setItem('thyro_adminPassword', password);
+            document.getElementById('adminSetup').style.display = 'none';
+            showMessage('Admin password set successfully!', 'success');
+        }
+
+        function loadUsers() {
+            const users = JSON.parse(localStorage.getItem('thyro_users') || '{}');
+            const userSelect = document.getElementById('userSelect');
+            const usersList = document.getElementById('usersList');
+            
+            if (Object.keys(users).length === 0) {
+                usersList.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #999;">No users yet</td></tr>';
+                return;
+            }
+
+            // Clear and populate select
+            userSelect.innerHTML = '<option value="">Choose a user...</option>';
+            
+            let tableHTML = '';
+            Object.keys(users).forEach(email => {
+                const user = users[email];
+                userSelect.innerHTML += `<option value="${email}">${email}</option>`;
+                
+                const licenseStatus = user.license ? `<code style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px;">${user.license}</code>` : 'No license';
+                const statusBadge = user.license 
+                    ? '<span class="status-badge status-active">Licensed</span>' 
+                    : '<span class="status-badge status-no-license">No License</span>';
+                
+                tableHTML += `
+                    <tr>
+                        <td>${email}</td>
+                        <td>${statusBadge}</td>
+                        <td>${licenseStatus}</td>
+                        <td>
+                            <button class="action-btn" onclick="removeLicense('${email}')">Remove License</button>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            usersList.innerHTML = tableHTML;
+        }
+
+        function assignLicense() {
+            const email = document.getElementById('userSelect').value;
+            const license = document.getElementById('licenseKey').value;
+            const messageDiv = document.getElementById('message');
+
+            if (!email) {
+                showMessage('Please select a user', 'error');
+                return;
+            }
+
+            if (!license.trim()) {
+                showMessage('Please enter a license key', 'error');
+                return;
+            }
+
+            const users = JSON.parse(localStorage.getItem('thyro_users') || '{}');
+            users[email].license = license;
+            localStorage.setItem('thyro_users', JSON.stringify(users));
+
+            showMessage(`License assigned to ${email}!`, 'success');
+            document.getElementById('licenseKey').value = '';
+            document.getElementById('userSelect').value = '';
+            loadUsers();
+        }
+
+        function removeLicense(email) {
+            if (confirm(`Remove license from ${email}?`)) {
+                const users = JSON.parse(localStorage.getItem('thyro_users') || '{}');
+                users[email].license = null;
+                localStorage.setItem('thyro_users', JSON.stringify(users));
+                
+                showMessage(`License removed from ${email}`, 'success');
+                loadUsers();
+            }
+        }
+
+        function showMessage(text, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.className = `message ${type}`;
+            messageDiv.textContent = text;
+            setTimeout(() => {
+                messageDiv.className = 'message';
+                messageDiv.textContent = '';
+            }, 3000);
+        }
+
+        function logout() {
+            localStorage.removeItem('thyro_currentUser');
+            window.location.href = 'index.html';
+        }
+
+        checkAdminAuth();
+    </script>
+</body>
+</html>

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Thyro External</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 {
+            font-size: 24px;
+        }
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        .content {
+            padding: 40px;
+        }
+        .user-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 30px;
+        }
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            font-size: 16px;
+        }
+        .info-label {
+            font-weight: 600;
+            color: #333;
+        }
+        .info-value {
+            color: #666;
+        }
+        .license-section {
+            margin-top: 30px;
+        }
+        .license-section h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        .license-info {
+            background: #e8f5e9;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #27ae60;
+        }
+        .no-license {
+            background: #fce4ec;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #e74c3c;
+            color: #c0392b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Thyro External - Dashboard</h1>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+        
+        <div class="content">
+            <div class="user-info">
+                <div class="info-row">
+                    <span class="info-label">Email:</span>
+                    <span class="info-value" id="userEmail"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Account Status:</span>
+                    <span class="info-value">Active</span>
+                </div>
+            </div>
+
+            <div class="license-section">
+                <h2>Your License</h2>
+                <div id="licenseDisplay"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function checkAuth() {
+            const currentUser = localStorage.getItem('thyro_currentUser');
+            if (!currentUser) {
+                window.location.href = 'index.html';
+                return;
+            }
+            document.getElementById('userEmail').textContent = currentUser;
+            displayLicense(currentUser);
+        }
+
+        function displayLicense(email) {
+            const users = JSON.parse(localStorage.getItem('thyro_users') || '{}');
+            const user = users[email];
+            const licenseDiv = document.getElementById('licenseDisplay');
+
+            if (user && user.license) {
+                licenseDiv.innerHTML = `
+                    <div class="license-info">
+                        <strong>License Key:</strong> ${user.license}
+                    </div>
+                `;
+            } else {
+                licenseDiv.innerHTML = `<div class="no-license">No license assigned. Contact admin for a license key.</div>`;
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('thyro_currentUser');
+            window.location.href = 'index.html';
+        }
+
+        checkAuth();
+    </script>
+</body>
+</html>
