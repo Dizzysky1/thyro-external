@@ -99,9 +99,9 @@
             font-size: 13px;
             margin-top: 5px;
         }
-        #loginForm { display: block; }
-        #signupForm { display: none; }
-        .hidden { display: none; }
+        .hidden {
+            display: none !important;
+        }
     </style>
 </head>
 <body>
@@ -132,7 +132,7 @@
             </form>
 
             <!-- SIGNUP FORM -->
-            <form id="signupForm">
+            <form id="signupForm" class="hidden">
                 <h1>Thyro External</h1>
                 <p class="subtitle">Create a new account</p>
                 
@@ -164,14 +164,7 @@
     </div>
 
     <script>
-        // Simple localStorage-based auth (for demo - use Firebase for production)
-        
-        function toggleForms() {
-            document.getElementById('loginForm').classList.toggle('hidden');
-            document.getElementById('signupForm').classList.toggle('hidden');
-        }
-
-        // Initialize admin account on first load
+        // Initialize admin account
         function initializeAdmin() {
             const users = JSON.parse(localStorage.getItem('thyro_users') || '{}');
             if (!users['lukemriser@gmail.com']) {
@@ -179,8 +172,14 @@
                 localStorage.setItem('thyro_users', JSON.stringify(users));
             }
         }
-        
-        // Login
+
+        // Toggle between login and signup forms
+        function toggleForms() {
+            document.getElementById('loginForm').classList.toggle('hidden');
+            document.getElementById('signupForm').classList.toggle('hidden');
+        }
+
+        // Login handler
         document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const email = document.getElementById('loginEmail').value;
@@ -201,7 +200,7 @@
             }
         });
 
-        // Signup
+        // Signup handler
         document.getElementById('signupForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const email = document.getElementById('signupEmail').value;
@@ -236,14 +235,17 @@
             successDiv.textContent = 'Account created! Please login.';
             document.getElementById('signupForm').reset();
             
-            setTimeout(() => toggleForms(), 1500);
+            setTimeout(() => {
+                toggleForms();
+                document.getElementById('loginEmail').focus();
+            }, 1500);
         });
 
         // Check if already logged in
         if (localStorage.getItem('thyro_currentUser')) {
             window.location.href = 'dashboard.html';
         }
-        
+
         // Initialize admin account
         initializeAdmin();
     </script>
